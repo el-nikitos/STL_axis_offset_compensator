@@ -7,6 +7,17 @@ String  s_STL_file_path = "",
 
 String[] f_STL_file;
 
+PGraphics canva_XY,
+          canva_ZY;
+
+float f_max_X = -10000,
+      f_max_Y = -10000,
+      f_max_Z = -10000,
+      f_min_X =  10000,
+      f_min_Y =  10000,
+      f_min_Z =  10000,
+      f_koeff = 1;
+
 STL_data[] STL_triangles;
 
 void setup()  {
@@ -15,6 +26,9 @@ void setup()  {
   
   //while ( open_STL_file() == false )  {}
   selectInput("Select a file to process:", "select_STL_file");
+  
+  canva_XY = createGraphics( round( width*0.4 ), round( height*0.85 ) );
+  canva_ZY = createGraphics( round( width*0.4 ), round( height*0.85 ) );
 }
 
 void draw()  {
@@ -49,11 +63,14 @@ void draw()  {
   } else  {  // отрисовка меню, когда файл открыт
     background(150, 150, 250);
     
+    text("ДЛЯ ВОЗВРАТА НАЖМИТЕ 'BACKSPACE'", width/2, height*0.015 );
     
+    image(canva_XY, width*0.02, height*0.05);
+    image(canva_ZY, width*0.43, height*0.05);
   }
   
   fill(0);
-  text( "КРАЙНЕЕ СОБЫТИЕ: " + s_log, width/2, height*0.95 );
+  text( "LOG: " + s_log, width/2, height*0.95 );
 }
 
 void mouseClicked() {
@@ -71,6 +88,21 @@ void keyPressed() {
   if ( ( b_file_is_selected == true )&(b_file_is_opened == false)&(keyCode == BACKSPACE) )  {
     b_file_is_selected = false;  // сброс выбора файла при нажатии BACKSPACE
     s_log = "ПУТЬ К ФАЙЛУ СБРОШЕН";
+  }
+  
+  if ( ( b_file_is_selected == true )&(b_file_is_opened == true)&(keyCode == BACKSPACE) )  {
+    //b_file_is_selected = false;  // сброс выбора файла при нажатии BACKSPACE
+    b_file_is_opened = false;
+    
+    f_max_X = -10000;
+    f_max_Y = -10000;
+    f_max_Z = -10000;
+    f_min_X =  10000;
+    f_min_Y =  10000;
+    f_min_Z =  10000;
+    f_koeff = 1;
+      
+    s_log = "ВЫПОЛНЕН ВОЗВРАТ В МЕНЮ ВЫБОРА И ОТКРЫТИЯ ФАЙЛА";
   }
   
   if ( ( b_file_is_selected == false )&(b_file_is_opened == false)&(key == 32) )  {
@@ -120,7 +152,7 @@ void open_STL_file() {
   }
   //println(int_elements_count);
   
-  if (int_elements_count > 0)  {  // действие, если файл содержит упоменание вершин
+  if (int_elements_count > 3)  {  // действие, если файл содержит упоменание граней
   
   STL_triangles = new STL_data[int_elements_count];  //  определили размер массива и его данные
   for (int i=0; i<int_elements_count; i++)  {
@@ -128,10 +160,16 @@ void open_STL_file() {
     STL_triangles[i] = new STL_data();  
   }
     read_STL_file();
+    find_canva_size( int_elements_count );
+    draw_canva_XY( int_elements_count );
+    draw_canva_ZY( int_elements_count );
+    
   } else {
     b_file_is_selected = false;
-    s_log = "ФАЙЛ НЕ СОДЕРЖИТ ДАННЫХ О ПОЛИГОНАХ";
+    s_log = "ФАЙЛ НЕ СОДЕРЖИТ КОРРЕКТНЫХ ДАННЫХ О ПОЛИГОНАХ";
   }
+  
+  println(int_elements_count);
 }
 
 void read_STL_file()  {
@@ -227,6 +265,131 @@ void read_STL_file()  {
     
   }
   //println( count );
+  
   s_log = "ФАЙЛ ПРОЧИТАН";
   b_file_is_opened = true;
+}
+
+void find_canva_size(int count)  {  //поиск наибольших размеров модели
+
+  float f_koeff_X = 1,
+        f_koeff_Y = 1,
+        f_koeff_Z = 1;
+
+  for (int i=0;i<count;i++)  {
+    if (STL_triangles[i].x1 > f_max_X)  {    // поиск максимальных координат по X
+      f_max_X = STL_triangles[i].x1;
+    }
+    if (STL_triangles[i].x2 > f_max_X)  {
+      f_max_X = STL_triangles[i].x2;
+    }
+    if (STL_triangles[i].x3 > f_max_X)  {
+      f_max_X = STL_triangles[i].x3;
+    }
+    
+    if (STL_triangles[i].y1 > f_max_Y)  {    // поиск максимальных координат по Y
+      f_max_Y = STL_triangles[i].y1;
+    }
+    if (STL_triangles[i].y2 > f_max_Y)  {
+      f_max_Y = STL_triangles[i].y2;
+    }
+    if (STL_triangles[i].y3 > f_max_Y)  {
+      f_max_Y = STL_triangles[i].y3;
+    }
+    
+    if (STL_triangles[i].z1 > f_max_Z)  {    // поиск максимальных координат по Z
+      f_max_Z = STL_triangles[i].z1;
+    }
+    if (STL_triangles[i].z2 > f_max_Z)  {
+      f_max_Z = STL_triangles[i].z2;
+    }
+    if (STL_triangles[i].z3 > f_max_Z)  {
+      f_max_Z = STL_triangles[i].z3;
+    }
+    
+    if (STL_triangles[i].x1 < f_min_X)  {    // поиск минимальных координат по X
+      f_min_X = STL_triangles[i].x1;
+    }
+    if (STL_triangles[i].x2 < f_min_X)  {
+      f_min_X = STL_triangles[i].x2;
+    }
+    if (STL_triangles[i].x3 < f_min_X)  {
+      f_min_X = STL_triangles[i].x3;
+    }
+    
+    if (STL_triangles[i].y1 < f_min_Y)  {    // поиск минимальных координат по Y
+      f_min_Y = STL_triangles[i].y1;
+    }
+    if (STL_triangles[i].y2 < f_min_Y)  {
+      f_min_Y = STL_triangles[i].y2;
+    }
+    if (STL_triangles[i].y3 < f_min_Y)  {
+      f_min_Y = STL_triangles[i].y3;
+    }
+    
+    if (STL_triangles[i].z1 < f_min_Z)  {    // поиск минимальных координат по Z
+      f_min_Z = STL_triangles[i].z1;
+    }
+    if (STL_triangles[i].z2 < f_min_Z)  {
+      f_min_Z = STL_triangles[i].z2;
+    }
+    if (STL_triangles[i].z3 < f_min_Z)  {
+      f_min_Z = STL_triangles[i].z3;
+    }
+    
+  }
+  
+  f_koeff_X = canva_XY.width / (f_max_X - f_min_X) ;
+  f_koeff_Y = canva_XY.height / (f_max_Y - f_min_Y) ;
+  f_koeff_Z = canva_ZY.width / (f_max_Z - f_min_Z) ;
+  /*
+  println( f_min_X );
+  println( f_max_X );
+  println( f_min_Y );
+  println( f_max_Y );
+  println( f_min_Z );
+  println( f_max_Z );
+  
+  println( f_koeff_X );
+  println( f_koeff_Y );
+  println( f_koeff_Z );
+  */
+  f_koeff = min( f_koeff_X, f_koeff_Y, f_koeff_Z )*0.8;
+  
+}
+
+void draw_canva_XY(int count)  {
+  
+  float f_center_Y = (canva_XY.height - f_koeff * (f_max_Y - f_min_Y))/2,
+        f_center_X = (canva_XY.width - f_koeff * (f_max_X - f_min_X))/2;
+  
+  canva_XY.beginDraw();
+  canva_XY.background(255);
+  
+  for (int i=0;i<count;i++)  {
+    canva_XY.triangle( f_koeff * (STL_triangles[i].x1 - f_min_X) + f_center_X, f_koeff * (STL_triangles[i].y1 - f_min_Y) + f_center_Y, 
+                       f_koeff * (STL_triangles[i].x2 - f_min_X) + f_center_X, f_koeff * (STL_triangles[i].y2 - f_min_Y) + f_center_Y, 
+                       f_koeff * (STL_triangles[i].x3 - f_min_X) + f_center_X, f_koeff * (STL_triangles[i].y3 - f_min_Y) + f_center_Y );
+  }
+  
+  canva_XY.endDraw();
+  
+}
+
+void draw_canva_ZY(int count)  {
+  
+  float f_center_Y = (canva_ZY.height - f_koeff * (f_max_Y - f_min_Y))/2,
+        f_center_Z = (canva_ZY.width - f_koeff * (f_max_Z - f_min_Z))/2;
+  
+  canva_ZY.beginDraw();
+  canva_ZY.background(255);
+  
+  for (int i=0;i<count;i++)  {
+    canva_ZY.triangle( f_koeff * (STL_triangles[i].z1 - f_min_Z) + f_center_Z, f_koeff * (STL_triangles[i].y1 - f_min_Y) + f_center_Y, 
+                       f_koeff * (STL_triangles[i].z2 - f_min_Z) + f_center_Z, f_koeff * (STL_triangles[i].y2 - f_min_Y) + f_center_Y, 
+                       f_koeff * (STL_triangles[i].z3 - f_min_Z) + f_center_Z, f_koeff * (STL_triangles[i].y3 - f_min_Y) + f_center_Y );
+  }
+  
+  canva_ZY.endDraw();
+    
 }
