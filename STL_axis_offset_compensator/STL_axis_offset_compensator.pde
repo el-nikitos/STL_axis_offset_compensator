@@ -113,7 +113,9 @@ void keyPressed() {
   }
   
   if ( ( b_file_is_selected == true )&(b_file_is_opened == true)&(key == 32) )  {
-    spin_along_XY( XY_degree*PI/180 );  // перерисовка при нажатии ПРОБЕЛ
+    spin_along_XY_ZY( XY_degree*PI/180, ZY_degree*PI/180 );  // перерисовка при нажатии ПРОБЕЛ
+    spin_along_YX( YX_degree*PI/180 );
+    spin_along_YZ( YZ_degree*PI/180 );
     
     find_canva_size( STL_triangles.length );  
     draw_canva_XY( STL_triangles.length );
@@ -586,12 +588,26 @@ void draw_spin_menu()  {
   image( graphic_YZ, width*0.85, height*(0.05+0.21*3) );
 }
 
-void spin_along_XY( float alpha)  {
-  
+void spin_along_XY_ZY( float alpha, float beta)  {
   for (int i=0;i<STL_triangles.length;i++)  {
-    STL_buffer[i].y1 = STL_triangles[i].y1 + STL_triangles[i].x1*tan(alpha);
-    STL_buffer[i].y2 = STL_triangles[i].y2 + STL_triangles[i].x2*tan(alpha);
-    STL_buffer[i].y3 = STL_triangles[i].y3 + STL_triangles[i].x3*tan(alpha);
+    STL_buffer[i].y1 = STL_triangles[i].y1 + STL_triangles[i].x1*tan(alpha) + STL_triangles[i].z1*tan(beta);
+    STL_buffer[i].y2 = STL_triangles[i].y2 + STL_triangles[i].x2*tan(alpha) + STL_triangles[i].z2*tan(beta);
+    STL_buffer[i].y3 = STL_triangles[i].y3 + STL_triangles[i].x3*tan(alpha) + STL_triangles[i].z3*tan(beta);
   }
-  
+}
+
+void spin_along_YX( float alpha)  {
+  for (int i=0;i<STL_triangles.length;i++)  {
+    STL_buffer[i].x1 = STL_triangles[i].x1 + STL_triangles[i].y1*tan(alpha);
+    STL_buffer[i].x2 = STL_triangles[i].x2 + STL_triangles[i].y2*tan(alpha);
+    STL_buffer[i].x3 = STL_triangles[i].x3 + STL_triangles[i].y3*tan(alpha);
+  }
+}
+
+void spin_along_YZ( float alpha)  {
+  for (int i=0;i<STL_triangles.length;i++)  {
+    STL_buffer[i].z1 = STL_triangles[i].z1 + STL_triangles[i].y1*tan(alpha);
+    STL_buffer[i].z2 = STL_triangles[i].z2 + STL_triangles[i].y2*tan(alpha);
+    STL_buffer[i].z3 = STL_triangles[i].z3 + STL_triangles[i].y3*tan(alpha);
+  }
 }
