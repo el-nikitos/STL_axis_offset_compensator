@@ -167,31 +167,31 @@ void keyPressed() {
   }
   
   if (keyCode == UP) {
-    if (boolOffsetX == true)  { offsetX = offsetX + 0.2; boolAnyOffset = true; }
-    if (boolOffsetY == true)  { offsetY = offsetY + 0.2; boolAnyOffset = true; }
-    if (boolOffsetZ == true)  { offsetZ = offsetZ + 0.2; boolAnyOffset = true; }
+    if (boolOffsetX == true)  { offsetX = offsetX + 0.25; boolAnyOffset = true; }
+    if (boolOffsetY == true)  { offsetY = offsetY + 0.25; boolAnyOffset = true; }
+    if (boolOffsetZ == true)  { offsetZ = offsetZ + 0.25; boolAnyOffset = true; }
     
     if (offsetX > maxOffset) { offsetX = maxOffset; }
     if (offsetY > maxOffset) { offsetY = maxOffset; }
     if (offsetZ > maxOffset) { offsetZ = maxOffset; }
     
-    offsetX = float(round(offsetX*10))/10;
-    offsetY = float(round(offsetY*10))/10;
-    offsetZ = float(round(offsetZ*10))/10;
+    offsetX = float(round(offsetX*100))/100;
+    offsetY = float(round(offsetY*100))/100;
+    offsetZ = float(round(offsetZ*100))/100;
   }
   
   if (keyCode == DOWN) {
-    if (boolOffsetX == true)  { offsetX = offsetX - 0.2; boolAnyOffset = true; }
-    if (boolOffsetY == true)  { offsetY = offsetY - 0.2; boolAnyOffset = true; }
-    if (boolOffsetZ == true)  { offsetZ = offsetZ - 0.2; boolAnyOffset = true; }
+    if (boolOffsetX == true)  { offsetX = offsetX - 0.25; boolAnyOffset = true; }
+    if (boolOffsetY == true)  { offsetY = offsetY - 0.25; boolAnyOffset = true; }
+    if (boolOffsetZ == true)  { offsetZ = offsetZ - 0.25; boolAnyOffset = true; }
     
     if (offsetX < -maxOffset) { offsetX = -maxOffset; }
     if (offsetY < -maxOffset) { offsetY = -maxOffset; }
     if (offsetZ < -maxOffset) { offsetZ = -maxOffset; }
     
-    offsetX = float(round(offsetX*10))/10;
-    offsetY = float(round(offsetY*10))/10;
-    offsetZ = float(round(offsetZ*10))/10;
+    offsetX = float(round(offsetX*100))/100;
+    offsetY = float(round(offsetY*100))/100;
+    offsetZ = float(round(offsetZ*100))/100;
   }
   
   if (key == 32) {
